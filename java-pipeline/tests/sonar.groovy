@@ -25,9 +25,7 @@ def runTest(String targetBranch, context) {
         disable_test_task_option = "-x test"
     }
 
-    podTemplate(label: 'jnlp') {
-        node('jnlp') {
-            container('gradle') {
+
                 try {
 
                     checkout scm
@@ -59,10 +57,8 @@ def runTest(String targetBranch, context) {
                         junit allowEmptyResults: true, testResults: '**/TEST*.xml'
                     }
                 }
-            }
             cleanWs()
-        }
-    }
+
 }
 
 

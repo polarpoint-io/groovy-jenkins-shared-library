@@ -11,9 +11,7 @@ def runTest(String targetBranch, context) {
     def artifactId = context.config.archivesBaseName
     def coverage_exclusions = context.config.sonar.coverage_exclusions
 
-    podTemplate(label: 'jnlp') {
-        node('jnlp') {
-            container('gradle') {
+
 
                 checkout scm
 
@@ -50,9 +48,7 @@ def runTest(String targetBranch, context) {
 
                     stash name: 'findbugs-report', allowEmpty: true, includes: 'build/reports/spotbugs/main.xml'
                 }
-            }
-        }
-    }
+
 }
 
 

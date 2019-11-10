@@ -8,9 +8,6 @@ def runTest(String targetBranch, context) {
     utils = new io.polarpoint.utils.Utils()
 
     def artifactId = context.config.archivesBaseName
-    podTemplate(label: 'jnlp') {
-        node('jnlp') {
-            container('gradle') {
 
                 checkout scm
                 try {
@@ -37,11 +34,9 @@ def runTest(String targetBranch, context) {
                             unstableTotalLow: '1000',
                             unstableTotalNormal: '1000' //TODO all the configuration here needs to be per project
                 }
-            }
+
 
             cleanWs()
-        }
-    }
 
 }
 
