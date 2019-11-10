@@ -25,7 +25,7 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
     def label = "jnlp"
     def gateStatus
     def dockerFileExists
-    def Slack  = new Slack(this)
+    def Slack = new Slack(this)
     String targetEnvironment = "${context.application}-${targetBranch}"
     def vulnerabilityImageScanner
 
@@ -33,7 +33,7 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
     node('master') {
 
 
-        Slack.sender(true, [ buildStatus: 'STARTED' ])
+        Slack.sender(true, [buildStatus: 'STARTED'])
 
         echo("target_branch:" + targetBranch)
         checkout scm
@@ -84,207 +84,129 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
         echo("Loading deployer: " + stageHandlers.deployer)
         deployer = load(stageHandlers.deployer)
 
-    }
 
-    try {
-
-        Slack.sender(true, [ buildStatus: 'PROGRESS' ])
-
-        withCredentials([
-                usernamePassword(credentialsId: 'svc-nexus-user', usernameVariable: 'ORG_GRADLE_PROJECT_nexusUsername', passwordVariable: 'ORG_GRADLE_PROJECT_nexusPassword')])
-                {
-                    // use Nexus credentials for all stages
-
-            // everything script loaded in this block needs a node() and container()
-            // look in the java-pipeline .groovy files!!!
-
-            milestone(label: 'Static Analysis')
-            stage("Static Analysis") {
-                def codeSanitySchedule = [:]
-                for (Object testClass : staticAnalysisTests) {
-                    def currentTest = testClass
-                    codeSanitySchedule[currentTest.name()] = {
-                        currentTest.runTest(targetBranch, context)
-                    }
-                }
-
-                parallel codeSanitySchedule
-            }
-
+        try {
 
             Slack.sender(true, [buildStatus: 'PROGRESS'])
 
-            milestone(label: 'Quality Tests')
-            stage("Quality Tests") {
-                for (Object testClass : qualityTests) {
-                    def currentTest = testClass
+            withCredentials([
+                    usernamePassword(credentialsId: 'svc-nexus-user', usernameVariable: 'ORG_GRADLE_PROJECT_nexusUsername', passwordVariable: 'ORG_GRADLE_PROJECT_nexusPassword')])
+                    {
+                        // use Nexus credentials for all stages
 
-                    currentTest.runTest(targetBranch, context)
-                }
-            }
+                        // everything script loaded in this block needs a node() and container()
+                        // look in the java-pipeline .groovy files!!!
 
-            stage("Quality Gate") {
-                timeout(time: 1, unit: 'HOURS') {
-                    def qg = waitForQualityGate()
-                    if (qg.status == 'OK') {
-                        gateStatus = 'SUCCESS'
-                    } else {
-                        gateStatus = 'FAILURE'
-                    }
-                }
-            }
-
-            milestone(label: 'Build')
-
-
-            podTemplate(label: 'jnlp') {
-                node('jnlp') {
-                    cleanWs()
-                    container('gradle') {
-                        checkout scm
-
-                        stage("Build") {
-                            builder.build(targetBranch, context)
-                        }
-
-                        if (toTag) {
-                            milestone(label: 'Tag')
-                            stage("Tag") {
-                                invokeSemanticVersioning(targetBranch, context)
+                        milestone(label: 'Static Analysis')
+                        stage("Static Analysis") {
+                            def codeSanitySchedule = [:]
+                            for (Object testClass : staticAnalysisTests) {
+                                def currentTest = testClass
+                                codeSanitySchedule[currentTest.name()] = {
+                                    currentTest.runTest(targetBranch, context)
+                                }
                             }
+
+                            parallel codeSanitySchedule
                         }
-                    }
-                }
-            }
 
 
-            milestone(label: 'Publish')
-            podTemplate(label: 'maven') {
-                node('maven') {
-                    container('maven') {
-                        stage("Publish") {
-                            publisher.publish(targetBranch, context)
-                        }
-                    }
-                }
-            }
+                        Slack.sender(true, [buildStatus: 'PROGRESS'])
 
-            if (dockerFileExists) {
+                        milestone(label: 'Quality Tests')
+                        stage("Quality Tests") {
+                            for (Object testClass : qualityTests) {
+                                def currentTest = testClass
 
-                podTemplate(label: "docker") {
-                    node('docker') {
-                        milestone(label: 'Docker Build')
-                        stage("Docker Build") {
-                            container('docker') {
-                                containerBuilder.build(targetBranch, context)
+                                currentTest.runTest(targetBranch, context)
                             }
                         }
 
-                        milestone(label: 'Staging Docker Registry Publish')
-                        stage("Staging Docker Registry Publish") {
-
-                            container('docker') {
-                                containerStager.stage(targetBranch, context)
-                            }
-
-                        }
-
-//                        milestone(label: 'Docker Container Scanner')
-//                        stage("Docker Container/Vulnerability Scanner") {
-//
-//                            parallel(
-//                                    anchore: {
-//                                        container('docker') {
-//                                            containerScanner.scan(targetBranch, context)
-//                                        }
-//                                    },
-//                                    dagda: {
-//                                        node('curljq') {
-//
-//                                                container('curljqc') {
-//                                                    vulnerabilityImageScanner.scan(targetBranch, context)
-//                                                }
-//
-//                                            }
-//                                    })
-//
-//
-//
-//                        }
-
-                        milestone(label: 'Docker Registry Publish')
-                        stage("Docker Registry Publish") {
-
-                            container('docker') {
-                                containerPublisher.publish(targetBranch, context)
+                        stage("Quality Gate") {
+                            timeout(time: 1, unit: 'HOURS') {
+                                def qg = waitForQualityGate()
+                                if (qg.status == 'OK') {
+                                    gateStatus = 'SUCCESS'
+                                } else {
+                                    gateStatus = 'FAILURE'
+                                }
                             }
                         }
-                        cleanWs()
+
+                        milestone(label: 'Build')
+
+
+                                cleanWs()
+                                    checkout scm
+
+                                    stage("Build") {
+                                        builder.build(targetBranch, context)
+                                    }
+
+                                    if (toTag) {
+                                        milestone(label: 'Tag')
+                                        stage("Tag") {
+                                            invokeSemanticVersioning(targetBranch, context)
+                                        }
+                                    }
+
+
+
+
+
+                        milestone(label: 'Publish')
+                                    stage("Publish") {
+                                        publisher.publish(targetBranch, context)
+                                    }
+
+
+
                     }
-                }
-            }
+
+
+
+            success = true
         }
 
-//        if (targetBranch =~ /(development|master)/) {
-//
-//            milestone(label: 'Deploy')
-//            // Locked Deploy Cycle-----------------//
-//            lock(inversePrecedence: true, quantity: 1, resource: targetEnvironment) {
-//                stage("Deploy") {
-//                    if (deployer != null) {
-//                        deployer.deploy(targetBranch, context)
-//                    } else {
-//                        echo("nothing to deploy")
-//                    }
-//                }
-//            }
-//        }
+        catch (err) {
 
-        success = true
-    }
+            echo err.message
+            error("Pipeline tasks have failed.")
 
-    catch (err) {
-
-        echo err.message
-        error("Pipeline tasks have failed.")
-
-    } finally {
-        // Notify----------------------------//
-        stage("Notify") {
-            try {
-                GitHubNotify(scmVars, 'Sonar Quality Gate', 'jenkinsci/sonar-quality', gateStatus)
+        } finally {
+            // Notify----------------------------//
+            stage("Notify") {
+                try {
+                    GitHubNotify(scmVars, 'Sonar Quality Gate', 'jenkinsci/sonar-quality', gateStatus)
 
 
+                    if (success) {
+                        // Update confluence with build results
 
-                if (success) {
-                    // Update confluence with build results
-                    //invokeConfluence(targetBranch, context, 'SUCCESS')
-                    def config = [
-                            buildStatus: 'SUCCESS'
-                    ];
-                    Slack.sender(config)
-                   // slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+                        def config = [
+                                buildStatus: 'SUCCESS'
+                        ];
+                        Slack.sender(config)
 
 
-                } else {
-                    // Update confluence with build results
-                    //invokeConfluence(targetBranch, context, 'FAILURE')
-                    def config = [
-                            buildStatus: 'FAILURE'
-                    ];
-                    Slack.sender(config)
-                    //slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+                    } else {
 
-                    echo "Pipeline tasks have failed."
+                        def config = [
+                                buildStatus: 'FAILURE'
+                        ];
+                        Slack.sender(config)
+
+                        echo "Pipeline tasks have failed."
+                    }
+
+                } catch (err) {
+                    println err.message
+                    //echo Utils.stackTrace(error)
+                    error "Notifications failed."
+                } finally {
+
+                    // do nothing
                 }
-
-            } catch (err) {
-                println err.message
-                //echo Utils.stackTrace(error)
-                error "Notifications failed."
-            } finally {
-
-                // do nothing
             }
         }
     }
