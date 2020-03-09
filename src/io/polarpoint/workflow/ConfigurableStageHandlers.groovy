@@ -8,7 +8,7 @@ package io.polarpoint.workflow
 
 class ConfigurableStageHandlers implements Serializable, StageHandlers {
 
-
+    String semanticVersioner
     String builder
     String publisher
     String containerBuilder
@@ -26,6 +26,7 @@ class ConfigurableStageHandlers implements Serializable, StageHandlers {
 
 
     public ConfigurableStageHandlers(
+            String semanticVersioner,
             String builder,
             String publisher,
             String containerBuilder,
@@ -40,6 +41,7 @@ class ConfigurableStageHandlers implements Serializable, StageHandlers {
             List<String> performanceTests,
             String vulnerabilityScanner) {
 
+        this.semanticVersioner = semanticVersioner
         this.builder = builder
         this.publisher = publisher
         this.containerBuilder = containerBuilder

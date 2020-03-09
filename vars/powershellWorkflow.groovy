@@ -27,10 +27,27 @@ def call(PowershellContext context, String targetBranch, scmVars, Boolean toTag)
                     stage("apply")
                     {
                         applier.apply(targetBranch, context)
+
+                        // If required add the data to GitHub
+                        if (context.config.scriptLocation.url.contains("metrics-reports.git")) {
+                            unstash 'metrics-reports'
+                            def REPO = scm.userRemoteConfigs.getAt(0).getUrl()
+                            REPO = REPO - 'https://'                            
+                            
+                            // add the files to the repo
+                            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: '43cee12e-c6be-41e5-b5c3-79e3c47c1292', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS']]) {                                                                                   
+                                reportData = sh(returnStdout: true, script: "git add ${env.WORKSPACE}/Reports/Data/by*.json")                                                                                                
+                                sh 'git config --global user.email \"jenkins@mycnets.com\"'
+                                sh 'git config --global user.name \"Jenkins Server\"'                
+                                configCommit = sh(returnStdout: true, script: "git commit -m '[jenkins-versioned] added metric report and data.'")                
+                                tagPush = sh(returnStdout: true, script: "git push https://${GITHUB_USER}:${GITHUB_PASS}@${REPO}")
+                            }
+                        }
                     }
                 }
             }
-        }
+        }        
+
         success = true
     }
 

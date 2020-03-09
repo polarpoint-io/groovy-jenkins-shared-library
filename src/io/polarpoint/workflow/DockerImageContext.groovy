@@ -30,7 +30,12 @@ class DockerImageContext implements Serializable {
                 new groovy.json.JsonSlurperClassic().
                         parseText(configuration)
         ))
-
+        
+        if(ws.contains('@'))
+        {
+            ws = ws.substring(0, ws.lastIndexOf("@"))
+        }
+        
         def workspaceLibs = "${ws}@libs"
 
         def containerrun = config.containerrun ?: "${workspaceLibs}/pipeline-library/docker-image-pipeline/container/container.groovy"

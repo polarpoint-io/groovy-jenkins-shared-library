@@ -12,7 +12,6 @@ def call(String application, String configuration) {
         def utils = new io.polarpoint.utils.Utils()
         PowershellContext configurationContext
         node('master') {
-            properties([disableConcurrentBuilds()])
             scmVars = checkout scm
             GitHubNotify(scmVars, 'Jenkins Build Pipeline', 'jenkinsci/jenkins-pipeline', 'PENDING')
             GitHubNotify(scmVars, 'Sonar Quality Gate', 'jenkinsci/sonar-quality', 'PENDING')

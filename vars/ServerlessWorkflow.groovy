@@ -98,67 +98,82 @@ def call(ServerlessContext context, String targetBranch, scmVars, Boolean toTag)
             // everything script loaded in this block needs a node() and container()
             // look in the dotnet-pipeline .groovy files!!!
 
-//            milestone(label: 'Static Analysis')
-//            stage("Static Analysis") {
-//                def codeSanitySchedule = [:]
-//                for (Object testClass : staticAnalysisTests) {
-//                    def currentTest = testClass
-//                    codeSanitySchedule[currentTest.name()] = {
-//                        currentTest.runTest(targetBranch, context)
-//                    }
-//                }
-//
-//                parallel codeSanitySchedule
-//            }
+            milestone(label: 'Static Analysis')
+            stage("Static Analysis") {
+                def codeSanitySchedule = [:]
+                for (Object testClass : staticAnalysisTests) {
+                    def currentTest = testClass
+                    codeSanitySchedule[currentTest.name()] = {
+                        currentTest.runTest(targetBranch, context)
+                    }
+                }
+
+                parallel codeSanitySchedule
+            }
 
 
             Slack.sender(true, [buildStatus: 'PROGRESS'])
 
-//            milestone(label: 'Quality Tests')
-//            stage("Quality Tests") {
-//                for (Object testClass : qualityTests) {
-//                    def currentTest = testClass
-//
-//                    currentTest.runTest(targetBranch, context)
-//                }
-//            }
-//
-//            stage("Quality Gate") {
-//                timeout(time: 1, unit: 'HOURS') {
-//                    def qg = waitForQualityGate()
-//                    if (qg.status == 'OK') {
-//                        gateStatus = 'SUCCESS'
-//                    } else {
-//                        gateStatus = 'FAILURE'
-//                    }
-//                }
-//            }
+            milestone(label: 'Quality Tests')
+            stage("Quality Tests") {
+                for (Object testClass : qualityTests) {
+                    def currentTest = testClass
+
+                    currentTest.runTest(targetBranch, context)
+                }
+            }
+
+            stage("Quality Gate") {
+                timeout(time: 1, unit: 'HOURS') {
+                    def qg = waitForQualityGate()
+                    if (qg.status == 'OK') {
+                        gateStatus = 'SUCCESS'
+                    } else {
+                        gateStatus = 'FAILURE'
+                    }
+                }
+            }
+
 
             milestone(label: 'Build')
 
 
-            podTemplate(label: 'dotnet') {
-                node('dotnet') {
-                    container('dotnet') {
-
+            podTemplate(label: 'maven') {
+                node('maven') {
+                    container('maven') {
+                        checkout scm
                         stage("Build") {
                             builder.build(targetBranch, context)
                         }
-
-                        if (toTag) {
-                            milestone(label: 'Tag')
-                            stage("Tag") {
-                                invokeSemanticVersioning(targetBranch, context)
-                            }
-                        }
-                        milestone(label: 'Publish')
-                        stage("Publish") {
-                            publisher.publish(targetBranch, context)
-                        }
-
                     }
                 }
             }
+                    podTemplate(label: 'jnlp') {
+                        node('jnlp') {
+                            cleanWs()
+                            container('gradle') {
+
+                                if (toTag) {
+                                    milestone(label: 'Tag')
+                                    stage("Tag") {
+                                        invokeSemanticVersioning(targetBranch, context)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    podTemplate(label: 'maven') {
+                        node('maven') {
+                            container('maven') {
+                                milestone(label: 'Publish')
+                                stage("Publish") {
+                                    publisher.publish(targetBranch, context)
+                                }
+
+                            }
+                        }
+                    }
 
 
             if (dockerFileExists) {
@@ -193,7 +208,7 @@ def call(ServerlessContext context, String targetBranch, scmVars, Boolean toTag)
                                     dagda: {
                                         node('curljq') {
 
-                                                container('curljqc') {
+                                                container('curljq') {
                                                     vulnerabilityImageScanner.scan(targetBranch, context)
                                                 }
 

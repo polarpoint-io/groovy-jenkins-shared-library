@@ -17,12 +17,25 @@ import io.polarpoint.workflow.NodeContext
 import io.polarpoint.workflow.ZookeeperContext
 import io.polarpoint.workflow.contexts.HelmContext
 import io.polarpoint.workflow.contexts.DotNetContext
+import io.polarpoint.workflow.contexts.ServerlessContext
+import io.polarpoint.workflow.contexts.Javav_0_2_0ConfigurationContext
 @GrabResolver(name = 'pol-thirdparty', root = 'https://artifact.pohzn.com/repository/maven-public')
 @Grab(group = 'com.vdurmont', module = 'semver4j', version = '2.2.1')
 @Grab(group = 'org.pegdown', module = 'pegdown', version = '1.4.1')
 import org.pegdown.PegDownProcessor
 
 // all this java'ish groovy!
+
+def call(String targetBranch, Javav_0_2_0ConfigurationContext context) {
+    def configContext = new ConfigurationContext(context.application, context.config)
+    this.call(targetBranch, configContext)
+}
+
+
+def call(String targetBranch, ServerlessContext context) {
+    def configContext = new ConfigurationContext(context.application, context.config)
+    this.call(targetBranch, configContext)
+}
 
 def call(String targetBranch, DotNetContext context) {
     def configContext = new ConfigurationContext(context.application, context.config)
@@ -61,7 +74,6 @@ def call(String targetBranch, HelmContext context) {
     def configContext = new ConfigurationContext(context.application, context.config)
     this.call(targetBranch, configContext)
 }
-
 
 def call(String targetBranch, ConfigurationContext context) {
 
@@ -154,7 +166,6 @@ def call(String targetBranch, ConfigurationContext context) {
         } else {
             println 'No changes found in git since last tag: ' + taggedVersion.toString()
             nextVersion = null
-
         }
 
     } else {
@@ -234,7 +245,7 @@ def call(String targetBranch, ConfigurationContext context) {
             def templatePath = "${env.WORKSPACE}/pipelines/templates"
             // create release notes for changes
             //releaseNotes(applicationName,templatePath)
-            //config = sh(returnStdout: true, script: "git add ${templatePath}/releaseNotes*")
+            //config = sh(returnStdout: true, script: "git add ${env.WORKSPACE}/CHANGELOG.md")
             sh 'git config --global user.email \"jenkins@mycnets.com\"'
             sh 'git config --global user.name \"Jenkins Server\"'
             config = sh(returnStdout: true, script: "git add pipelines/conf/configuration.json")
@@ -253,6 +264,11 @@ def call(String targetBranch, ConfigurationContext context) {
         if (fileExists("${env.WORKSPACE}/package.json")) {
             stash name: 'package.json', includes: 'package.json'
         }
+
+        env.no_new_commits = true
+
+        echo "env.no_new_commits = ${env.no_new_commits}"
+
     }
     archiveArtifacts artifacts: "pipelines/conf/configuration.json", onlyIfSuccessful: false // archive regardless of success
 }

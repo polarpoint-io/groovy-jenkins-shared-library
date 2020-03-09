@@ -36,7 +36,7 @@ class PrometheusConfigContext implements Serializable {
 
         def workspaceLibs = "${ws}@libs"
 
-        def validate = config.validate ?: "${workspaceLibs}/pipeline-library/prometheus-alerts-config-pipeline/validate/reporter.groovy
+        def validate = config.validate ?: "${workspaceLibs}/pipeline-library/prometheus-alerts-config-pipeline/validate/validator.groovy"
         def apply = config.apply ?: "${workspaceLibs}/pipeline-library/prometheus-alerts-config-pipeline/apply/applier.groovy"
 
 

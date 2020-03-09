@@ -40,6 +40,7 @@ class ConfigurationContext implements Serializable {
 
         def workspaceLibs = "${ws}@libs"
 
+        def semanticVersioner = config.semanticVersioner ?: "${workspaceLibs}/pipeline-library/java-pipeline/semanticVersioning/semanticVersioner.groovy"
         def builder = config.builder ?: "${workspaceLibs}/pipeline-library/java-pipeline/build/builder.groovy"
         def publisher = config?.publisher ?: "${workspaceLibs}/pipeline-library/java-pipeline/publish/publisher.groovy"
         def deployer = config?.deployer ?: "${workspaceLibs}/pipeline-library/java-pipeline/deploy/deployer.groovy"
@@ -51,15 +52,18 @@ class ConfigurationContext implements Serializable {
         def unitTests = config?.unitTests ?: ["${workspaceLibs}/pipeline-library/java-pipeline/tests/unit.groovy"]
         def staticAnalysisTests = config?.staticAnalysisTests ?: [
                 "${workspaceLibs}/pipeline-library/java-pipeline/tests/checkstyle.groovy",
-                "${workspaceLibs}/pipeline-library/java-pipeline/tests/findbugs.groovy",
-                "${workspaceLibs}/pipeline-library/java-pipeline/tests/owasp.groovy"
+                "${workspaceLibs}/pipeline-library/java-pipeline/tests/findbugs.groovy"
+                //"${workspaceLibs}/pipeline-library/java-pipeline/tests/owasp.groovy" Disable owasp Stage for the moment
         ]
-        def integrationTests = config?.integrationTests ?: ["${workspaceLibs}/pipeline-library/java-pipeline/tests/bdd.groovy"]
-        def performanceTests = config?.performanceTests ?: ["${workspaceLibs}/pipeline-library/java-pipeline/tests/perf.groovy"]
+        def integrationTests = config?.integrationTests ?: [
+                "${workspaceLibs}/pipeline-library/java-pipeline/tests/bdd.groovy",
+                 "${workspaceLibs}/pipeline-library/java-pipeline/tests/integration.groovy"]
+        def performanceTests = config?.performanceTests ?: ["${workspaceLibs}/pipeline-library/java-pipeline/tests/performance.groovy"]
         def vulnerabilityScanner = config?.vulnerabilityScanner ?: "${workspaceLibs}/pipeline-library/java-pipeline/imageVulnScan/vulnscanner.groovy"
 
 
         configurableStageHandlers = new ConfigurableStageHandlers(
+                semanticVersioner,
                 builder,
                 publisher,
                 containerBuilder,

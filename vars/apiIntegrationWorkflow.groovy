@@ -5,6 +5,8 @@
  * higher environments and initiate integration tests
  */
 
+
+import io.polarpoint.utils.Slack
 import io.polarpoint.workflow.ApiIntegrationContext
 
 def call(ApiIntegrationContext context, String targetBranch, HashMap test_requirements) {
@@ -12,6 +14,7 @@ def call(ApiIntegrationContext context, String targetBranch, HashMap test_requir
     def integrationTests = []
     def allTests = []
     def success = false
+    def Slack  = new Slack(this)
 
     def nodePodYaml = '''
 apiVersion: v1
@@ -93,6 +96,7 @@ withCredentials([
                 allTests.addAll(integrationTests)
             }
 
+            Slack.sender(true, [ buildStatus: 'STARTED' ])
 
             def label = "gradle-${UUID.randomUUID().toString()}"
             podTemplate(
@@ -119,9 +123,63 @@ withCredentials([
 
 
                             }
-                            cleanWs()
+                            //cleanWs()
                         }
                     }
+            // Notify----------------------------//
+
+            stage("Notify") {
+                try {
+
+
+                    podTemplate(label: 'phantomjs') {
+                        node('phantomjs') {
+                            container('phantomjs') {
+                                stage("Publish") {
+                                    unstash 'archive'
+                                    sh "/usr/local/bin/phantomjs /rasterize.js target/site/serenity/serenity-summary.html serenity-summary.png  800px*385px"
+                                    archiveArtifacts artifacts: "serenity-summary.png", onlyIfSuccessful: true
+                                    stash includes: 'serenity-summary.png', name: 'serenity-summary'
+                                    sh "ls -rtl"
+                                }
+                            }
+                        }
+                    }
+
+                    if (success) {
+                        def config = [
+                                buildStatus: 'SUCCESS',
+                                filename: 'serenity-summary.png'
+                        ];
+
+                        Slack.sender(config)
+                        unstash  name: 'serenity-summary'
+                        def serenitySummary = readFile encoding: 'Base64', file: 'serenity-summary.png'
+                        //slackUploadFile channel: "#dev-ops-common-builds", filePath: "serenity-summary.png", initialComment: buildStatus
+                        Slack.fileSender( config,serenitySummary)
+
+                    } else {
+                        def config = [
+                                buildStatus: 'FAILURE',
+                                filename: 'serenity-summary.png'
+                        ];
+                        Slack.sender(config)
+                        unstash  name: 'serenity-summary'
+                        def serenitySummary = readFile encoding: 'Base64', file: 'serenity-summary.png'
+                        //slackUploadFile channel: "#dev-ops-common-builds", filePath: "serenity-summary.png", initialComment: buildStatus
+                        Slack.fileSender( config,serenitySummary)
+                        echo "Pipeline tasks have failed."
+                    }
+
+                } catch (err) {
+                    echo err.message
+                    echo "Notifications failed."
+                } finally {
+
+                }
+
+            }
+
         }
 }
 

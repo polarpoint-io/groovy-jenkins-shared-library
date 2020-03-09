@@ -7,7 +7,7 @@
 
 
 import groovy.json.JsonBuilder
-import io.polarpoint.workflow.ConfigurationContext
+import io.polarpoint.workflow.contexts.ServerlessContext
 
 echo("[Pipeline] invoked")
 def scmVars
@@ -18,7 +18,7 @@ def call(String application, String configuration) {
         // run this initially on the Jenkins master
 
         def utils = new io.polarpoint.utils.Utils()
-        ConfigurationContext configurationContext
+        ServerlessContext serverlessContext
         node('master') {
             properties([disableConcurrentBuilds()])
             scmVars = checkout scm
@@ -26,22 +26,22 @@ def call(String application, String configuration) {
             GitHubNotify(scmVars, 'Sonar Quality Gate', 'jenkinsci/sonar-quality', 'PENDING')
 
 
-            configurationContext = new ConfigurationContext(application, readFile(configuration), env.WORKSPACE)
+            serverlessContext = new ServerlessContext(application, readFile(configuration), env.WORKSPACE)
             stash name: 'pipelines', includes: 'pipelines/**'
             echo("[Pipeline] calling  with application:" + application)
             echo("[Pipeline] calling  with Branch:  $env.BRANCH_NAME ")
-            utils.printColour("[Pipeline] calling with configuration:" + (new JsonBuilder(configurationContext).toPrettyString()), 'green')
+            utils.printColour("[Pipeline] calling with configuration:" + (new JsonBuilder(serverlessContext).toPrettyString()), 'green')
         }
 
         if (env.BRANCH_NAME =~ /^master/) {
             echo("[Pipeline] master branch being built:" + application)
-            javaWorkflow(configurationContext, 'master', scmVars,true)
+            serverlessWorkflow(serverlessContext, 'master', scmVars,true)
         } else if (env.BRANCH_NAME =~ /^(release$|development$|hotfix\/|bugfix\/|feature\/)/) {
             echo("[Pipeline] development/release/hotfix/bugfix/feature branch being build and tagged:" + application)
-            javaWorkflow(configurationContext, env.BRANCH_NAME, scmVars, true)
+            serverlessWorkflow(serverlessContext, env.BRANCH_NAME, scmVars, true)
         } else if (env.BRANCH_NAME =~ /(BH|PC|HD|SLR)-\d*/) {
             echo("[Pipeline] feature  branch being built:" + application)
-            javaWorkflow(configurationContext, env.BRANCH_NAME, scmVars, false)
+            serverlessWorkflow(serverlessContext, env.BRANCH_NAME, scmVars, false)
 
             node('master') {
                 archiveArtifacts artifacts: "pipelines/conf/configuration.json", onlyIfSuccessful: false // archive regardless of success

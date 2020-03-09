@@ -27,7 +27,7 @@ def call(String application, String configuration) {
             }
         }
 
-        anchoreContext =new AnchoreContext(application, readFile(configuration), env.WORKSPACE)
+        anchoreContext = new AnchoreContext(application, readFile(configuration), env.WORKSPACE)
         stash name: 'pipelines', includes: 'pipelines/**'
         echo("[Generic Workflow] calling  with application:" + application)
         echo("[Generic Workflow] calling  with Branch:  $env.BRANCH_NAME ")
@@ -40,7 +40,7 @@ def call(String application, String configuration) {
                 echo("[Generic Workflow] development branch being build and tagged:" + application)
                 anchoreWorkflow(anchoreContext, 'development')
             }else if (env.BRANCH_NAME =~ /(PC|HD|SLR)-\d*/) {
-                echo("[Generic Workflow] feature  branch being build and tagged:" + application)
+                echo("[Generic Workflow] feature branch being build and tagged:" + application)
                 anchoreWorkflow(anchoreContext, env.BRANCH_NAME)
             }
             else {

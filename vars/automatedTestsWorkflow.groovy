@@ -8,6 +8,8 @@
 import io.polarpoint.workflow.ConfigurationContext
 import io.polarpoint.utils.Slack
 
+import javax.swing.JFileChooser
+
 def call(ConfigurationContext context, String targetBranch, HashMap test_requirements, scmVars) {
     def stageHandlers = context.getConfigurableStageHandlers()
     def integrationTests = []
@@ -15,11 +17,8 @@ def call(ConfigurationContext context, String targetBranch, HashMap test_require
     def label = "selenium"
     def success = false
     def Slack  = new Slack(this)
-    def HtmlImageGenerator = new HtmlImageGenerator(this)
 
     String targetEnvironment = "${context.application}-${targetBranch}"
-    String uri = ${context.uri}
-    String imageName= ${context.imageName}
 
     // run this initially on the Jenkins master
     node('master') {
@@ -87,30 +86,43 @@ def call(ConfigurationContext context, String targetBranch, HashMap test_require
                     stage("Notify") {
                         try {
                             GitHubNotify(scmVars, 'Sonar Quality Gate', 'jenkinsci/sonar-quality', 'SUCCESS')
+
+                            podTemplate(label: 'phantomjs') {
+                                node('phantomjs') {
+                                    container('phantomjs') {
+                                        stage("Publish") {
+                                            unstash 'archive'
+                                            sh "/usr/local/bin/phantomjs /rasterize.js target/site/serenity/serenity-summary.html serenity-summary.png  800px*385px"
+                                            archiveArtifacts artifacts: "serenity-summary.png", onlyIfSuccessful: true
+                                            stash includes: 'serenity-summary.png', name: 'serenity-summary'
+                                            sh "ls -rtl"
+                                        }
+                                    }
+                                }
+                            }
+
                             if (success) {
-                                // Update confluence with build results
-                                //invokeConfluence(targetBranch, context, 'SUCCESS')
                                 def config = [
                                         buildStatus: 'SUCCESS',
-                                        uri: '${uri}',
-                                        imageName: '${imageName}'
-
+                                        filename: 'serenity-summary.png'
                                 ];
+
                                 Slack.sender(config)
-                                HtmlImageGenerator.imager(config)
-
-                                // slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-
+                                unstash  name: 'serenity-summary'
+                                def serenitySummary = readFile encoding: 'Base64', file: 'serenity-summary.png'
+                                //slackUploadFile channel: "#dev-ops-common-builds", filePath: "serenity-summary.png", initialComment: buildStatus
+                                Slack.fileSender( config,serenitySummary)
 
                             } else {
-                                // Update confluence with build results
-                                //invokeConfluence(targetBranch, context, 'FAILURE')
                                 def config = [
-                                        buildStatus: 'FAILURE'
+                                        buildStatus: 'FAILURE',
+                                        filename: 'serenity-summary.png'
                                 ];
                                 Slack.sender(config)
-                                //slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-
+                                unstash  name: 'serenity-summary'
+                                def serenitySummary = readFile encoding: 'Base64', file: 'serenity-summary.png'
+                                //slackUploadFile channel: "#dev-ops-common-builds", filePath: "serenity-summary.png", initialComment: buildStatus
+                                Slack.fileSender( config,serenitySummary)
                                 echo "Pipeline tasks have failed."
                             }
 

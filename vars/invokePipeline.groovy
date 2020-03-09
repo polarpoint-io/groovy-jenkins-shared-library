@@ -15,6 +15,11 @@ def scmVars
 def call(String application, String configuration) {
 
     timestamps {
+        // Env variable to identify if there haven't been new commits since last build
+        env.no_new_commits = false
+
+        def Boolean isBugfixOrHotfix = false
+
         // run this initially on the Jenkins master
 
         def utils = new io.polarpoint.utils.Utils()
@@ -39,6 +44,10 @@ def call(String application, String configuration) {
         } else if (env.BRANCH_NAME =~ /^(release$|development$|hotfix\/|bugfix\/|feature\/)/) {
             echo("[Pipeline] development/release/hotfix/bugfix/feature branch being build and tagged:" + application)
             javaWorkflow(configurationContext, env.BRANCH_NAME, scmVars, true)
+
+            isBugfixOrHotfix = (env.BRANCH_NAME =~ /^(hotfix\/|bugfix\/)/)
+            echo "isBugfixOrHotfix: ${isBugfixOrHotfix}"
+
         } else if (env.BRANCH_NAME =~ /(BH|PC|HD|SLR)-\d*/) {
             echo("[Pipeline] feature  branch being built:" + application)
             javaWorkflow(configurationContext, env.BRANCH_NAME, scmVars, false)
@@ -52,13 +61,28 @@ def call(String application, String configuration) {
         } else {
             echo("[Pipeline] not sure how to continue.")
         }
-        echo("[Pipeline] End.")
+        echo("[Pipeline] End."+currentBuild.result)
 
+        if(isBugfixOrHotfix) {
+            node('master') {
+                echo "Check out again to ensure notify is made to the latest commit"
+                // Check out again to ensure notify is made to the latest commit
+                scmVars = checkout scm
+            }
+        }
 
         if (currentBuild.result == 'FAILURE') {
             GitHubNotify(scmVars, 'Jenkins Build Pipeline Failed!', 'jenkinsci/jenkins-pipeline', 'FAILURE')
         } else {
-            GitHubNotify(scmVars, 'Jenkins Build Pipeline Succeeded!', 'jenkinsci/jenkins-pipeline', 'SUCCESS')
+            try {
+                GitHubNotify(scmVars, 'Jenkins Build Pipeline Succeeded!', 'jenkinsci/jenkins-pipeline', 'SUCCESS')
+            }
+            catch(err)
+            {
+
+                echo err.message+'Eror in Github API Notify'
+            }
+
         }
     }
 

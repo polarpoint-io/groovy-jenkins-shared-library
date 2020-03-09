@@ -1,7 +1,7 @@
 /*
  * Surj Bains  <surj@polarpoint.io>
- * Master workflow
- * This Pipeline is used to version and build for Master branches
+ * Java workflow
+ * This Pipeline is used to version and build all branches
  *
  */
 
@@ -10,6 +10,7 @@ import io.polarpoint.utils.Slack
 
 def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toTag) {
     def stageHandlers = context.getConfigurableStageHandlers()
+    def semanticVersioner
     def builder
     def deployer
     def publisher
@@ -20,9 +21,10 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
     def unitTests = []
     def qualityTests = []
     def staticAnalysisTests = []
+    def integrationTests = []
     def allTests = []
     def success = false
-    def label = "jnlp"
+    def label = "gradle-6-0-1"
     def gateStatus
     def dockerFileExists
     def Slack = new Slack(this)
@@ -39,6 +41,9 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
         checkout scm
 
         dockerFileExists = fileExists("${env.WORKSPACE}/Dockerfile")
+
+        echo("Semantic versioner: " + stageHandlers.semanticVersioner)
+        semanticVersioner = load(stageHandlers.semanticVersioner)
 
         echo("Loading builder: " + stageHandlers.builder)
         builder = load(stageHandlers.builder)
@@ -61,7 +66,11 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
             echo("load sanity tests:" + test)
             staticAnalysisTests.add(load("${test}"))
         }
-
+        echo("load integration tests..." + stageHandlers.integrationTests)
+        for (String test : stageHandlers.integrationTests) {
+            echo("load tests:" + test)
+            integrationTests.add(load("${test}"))
+        }
         echo("Loading container builder: " + stageHandlers.containerBuilder)
         containerBuilder = load(stageHandlers.containerBuilder)
 
@@ -84,21 +93,37 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
         echo("Loading deployer: " + stageHandlers.deployer)
         deployer = load(stageHandlers.deployer)
 
+    }
 
-        try {
+    try {
 
-            Slack.sender(true, [buildStatus: 'PROGRESS'])
+        Slack.sender(true, [buildStatus: 'PROGRESS'])
 
-            withCredentials([
-                    usernamePassword(credentialsId: 'svc-nexus-user', usernameVariable: 'ORG_GRADLE_PROJECT_nexusUsername', passwordVariable: 'ORG_GRADLE_PROJECT_nexusPassword')])
-                    {
-                        // use Nexus credentials for all stages
+        def utils = new io.polarpoint.utils.Utils()
 
-                        // everything script loaded in this block needs a node() and container()
-                        // look in the java-pipeline .groovy files!!!
+        withCredentials([
+                usernamePassword(credentialsId: 'svc-nexus-user', usernameVariable: 'ORG_GRADLE_PROJECT_nexusUsername', passwordVariable: 'ORG_GRADLE_PROJECT_nexusPassword')])
+                {
+                    // use Nexus credentials for all stages
+
+                    milestone(label: 'Semantic versioning')
+                    stage("Semantic Versioning") {
+
+                        podTemplate(label: 'jnlp') {
+                            node('jnlp') {
+                                cleanWs()
+                                container('gradle') {
+                                    semanticVersioner.semanticVersioning(targetBranch, context)
+                                }
+                            }
+                        }
+                    }
+
+                    // Build artifact by default
+                    if("false" != env.BUILD_ARTIFACT) {
 
                         milestone(label: 'Static Analysis')
-                        stage("Static Analysis") {
+                        stage("Quality Tests") {
                             def codeSanitySchedule = [:]
                             for (Object testClass : staticAnalysisTests) {
                                 def currentTest = testClass
@@ -107,20 +132,17 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
                                 }
                             }
 
+                            for (Object qualityTestClass : qualityTests) {
+                                def currentqualityTest = qualityTestClass
+                                codeSanitySchedule[currentqualityTest.name()] = {
+                                    currentqualityTest.runTest(targetBranch, context)
+                                }
+                            }
+
+
                             parallel codeSanitySchedule
                         }
 
-
-                        Slack.sender(true, [buildStatus: 'PROGRESS'])
-
-                        milestone(label: 'Quality Tests')
-                        stage("Quality Tests") {
-                            for (Object testClass : qualityTests) {
-                                def currentTest = testClass
-
-                                currentTest.runTest(targetBranch, context)
-                            }
-                        }
 
                         stage("Quality Gate") {
                             timeout(time: 1, unit: 'HOURS') {
@@ -133,10 +155,28 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
                             }
                         }
 
+                        Slack.sender(true, [buildStatus: 'PASSED-QUALITY-TESTS'])
+                        milestone(label: 'Integration')
+                        stage("Integration Tests") {
+                            def codeSanitySchedule = [:]
+                            for (Object testClass : integrationTests) {
+                                def currentTest = testClass
+                                codeSanitySchedule[currentTest.name()] = {
+                                    currentTest.runTest(targetBranch, context)
+                                }
+                            }
+
+                            parallel codeSanitySchedule
+                        }
+
+                        Slack.sender(true, [buildStatus: 'PASSED-INTEGRATION-TESTS'])
                         milestone(label: 'Build')
 
-
+                        podTemplate(label: 'jnlp') {
+                            node('jnlp') {
                                 cleanWs()
+                                container('gradle') {
+
                                     checkout scm
 
                                     stage("Build") {
@@ -146,67 +186,152 @@ def call(ConfigurationContext context, String targetBranch, scmVars, Boolean toT
                                     if (toTag) {
                                         milestone(label: 'Tag')
                                         stage("Tag") {
-                                            invokeSemanticVersioning(targetBranch, context)
+                                            utils.tag(targetBranch, context)
                                         }
                                     }
+                                }
+                            }
+                        }
 
+                    }
 
+                    // Only retag existing artifact is specified
+                    if("true" == env.RETAG_ARTIFACT) {
+                        podTemplate(label: 'jnlp') {
+                            node('jnlp') {
+                                cleanWs()
+                                container('gradle') {
 
+                                    checkout scm
 
+                                    milestone(label: 'Tag')
+                                    stage("Tag") {
+                                        utils.tag(targetBranch, context)
+                                    }
+                                }
+                            }
+                        }
+                    }
 
+                    // Publish artifact by default
+                    if("false" != env.PUBLISH_ARTIFACT) {
                         milestone(label: 'Publish')
+                        podTemplate(label: 'maven') {
+                            node('maven') {
+                                container('maven') {
                                     stage("Publish") {
                                         publisher.publish(targetBranch, context)
                                     }
-
-
-
+                                }
+                            }
+                        }
                     }
 
+                    if (dockerFileExists) {
+
+                        podTemplate(label: "docker") {
+                            node('docker') {
+
+                                milestone(label: 'Docker Build')
+                                stage("Docker Build") {
+                                    container('docker') {
+                                        containerBuilder.build(targetBranch, context)
+                                    }
+                                }
+
+                                milestone(label: 'Staging Docker Registry Publish')
+                                stage("Staging Docker Registry Publish") {
+
+                                    container('docker') {
+                                        containerStager.stage(targetBranch, context)
+                                    }
+
+                                }
+
+                        milestone(label: 'Docker Container Scanner')
+                        stage("Docker Container/Vulnerability Scanner") {
+
+                            parallel(
+                                    anchore: {
+                                        container('docker') {
+                                            containerScanner.scan(targetBranch, context)
+                                        }
+
+                                    },
+                                    dagda: {
+                                        node('curljq') {
+
+                                                container('curljq') {
+                                                    vulnerabilityImageScanner.scan(targetBranch, context)
+                                                }
+
+                                            }
+                                    })
 
 
-            success = true
-        }
-
-        catch (err) {
-
-            echo err.message
-            error("Pipeline tasks have failed.")
-
-        } finally {
-            // Notify----------------------------//
-            stage("Notify") {
-                try {
-                    GitHubNotify(scmVars, 'Sonar Quality Gate', 'jenkinsci/sonar-quality', gateStatus)
 
 
-                    if (success) {
-                        // Update confluence with build results
+                        }
 
-                        def config = [
-                                buildStatus: 'SUCCESS'
-                        ];
-                        Slack.sender(config)
-
-
-                    } else {
-
-                        def config = [
-                                buildStatus: 'FAILURE'
-                        ];
-                        Slack.sender(config)
-
-                        echo "Pipeline tasks have failed."
+                                milestone(label: 'Docker Registry Publish')
+                                stage("Docker Registry Publish") {
+                                    container('docker') {
+                                        containerPublisher.publish(targetBranch, context)
+                                    }
+                                }
+                                cleanWs()
+                            }
+                        }
                     }
-
-                } catch (err) {
-                    println err.message
-                    //echo Utils.stackTrace(error)
-                    error "Notifications failed."
-                } finally {
-
-                    // do nothing
                 }
+
+        success = true
+    }
+
+    catch (err) {
+
+        echo err.message
+        error("Pipeline tasks have failed.")
+
+    } finally {
+        // Notify----------------------------//
+        stage("Notify") {
+            try {
+                GitHubNotify(scmVars, 'Sonar Quality Gate', 'jenkinsci/sonar-quality', gateStatus)
+
+
+                if (success) {
+                    // Update confluence with build results
+                    //invokeConfluence(targetBranch, context, 'SUCCESS')
+                    def config = [
+                            buildStatus: 'SUCCESS',
+                            image      : 'true'
+                    ];
+                    Slack.sender(config)
+
+                    // slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+
+
+                } else {
+                    // Update confluence with build results
+                    //invokeConfluence(targetBranch, context, 'FAILURE')
+                    def config = [
+                            buildStatus: 'FAILURE',
+                            image      : 'true'
+                    ];
+                    Slack.sender(config)
+                    //slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+
+                    echo "Pipeline tasks have failed."
+                }
+
+            } catch (err) {
+                println err.message
+                //echo Utils.stackTrace(error)
+                error "Notifications failed."
+            } finally {
+
+                // do nothing
             }
         }
     }

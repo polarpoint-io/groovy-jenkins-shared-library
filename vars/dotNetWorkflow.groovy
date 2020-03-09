@@ -193,7 +193,7 @@ def call(DotNetContext context, String targetBranch, scmVars, Boolean toTag) {
                                     dagda: {
                                         node('curljq') {
 
-                                                container('curljqc') {
+                                                container('curljq') {
                                                     vulnerabilityImageScanner.scan(targetBranch, context)
                                                 }
 

@@ -34,12 +34,11 @@ def call(AnchoreContext context, String targetBranch) {
                     qualityTests.add(load("${test}"))
                 }
 
-
                 node('curljq') {
                     sh "id"
                     checkout scm
                     Slack.sender(true, [buildStatus: 'PROGRESS'])
-                    container('curljqc') {
+                    container('curljq') {
                         milestone(label: 'Docker Image Running Anchore Build')
 
                         stage("Anchore scan") {
@@ -59,13 +58,25 @@ def call(AnchoreContext context, String targetBranch) {
                                 echo("Anchore scan")
                                 throw err
                             } finally {
-                                //
+                                // Notify----------------------------//
+                                stage("Notify") {
+                                    try {
+                                        if (success) {
+                                            slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+                                        } else {
+                                            slackSend(color: '#FF0000', message: "VULNERABILITES FOUND AT: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+                                            echo "There are some new vulnerabilities found during anchore scanning stage."
+                                        }
+                                    } catch (err) {
+                                        println err.message
+                                        error "Notifications failed."
+                                    } finally {
+                                        // do nothing
+                                    }
+                                }
                             }
                         }
-
                     }
-
-
                 }
             }
             success = true

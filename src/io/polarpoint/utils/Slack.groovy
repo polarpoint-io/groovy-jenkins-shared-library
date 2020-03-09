@@ -4,6 +4,7 @@ package io.polarpoint.utils
 import groovy.json.*
 import io.polarpoint.utils.Utils
 import java.io.Serializable
+import java.io.File;
 
 
 
@@ -106,8 +107,20 @@ class Slack implements Serializable {
                 message = "${pipeline.currentBuild.rawBuild.getCauses().get(0).getShortDescription()}"
                 colorCode = '#ccc'
                 break
+            case 'PASSED-TESTS':
+                message = "Passed tests ${message}"
+                colorCode = '#007bff'
+                break
+            case 'PASSED-QUALITY-TESTS':
+                message = "Passed quality tests ${message}"
+                colorCode = '#007bff'
+                break
+            case 'PASSED-INTEGRATION-TESTS':
+                message = "Passed integration tests ${message}"
+                colorCode = '#007bff'
+                break
             case 'PROGRESS':
-                message = "In-progress ${message}"
+                message = "In Progress ${message}"
                 colorCode = '#007bff'
                 break
             case 'SUCCESS':
@@ -153,11 +166,13 @@ class Slack implements Serializable {
                     short: false
             ])
         }
+
         if (config.extraAttachements) {
             config.extraAttachements.each { extraAttachments ->
                 attachmentPayload[0].fields.add(extraAttachments)
             }
         }
+
         def projectName = pipeline.currentBuild.fullProjectName
         def organisationName =  utils.parseGitHubOrganisation(projectName)
 
@@ -165,6 +180,45 @@ class Slack implements Serializable {
         {
             config.channel = organisationName+"-builds"
         }
+
         pipeline.slackSend(channel: config.channel, color: colorCode, attachments: new JsonBuilder(attachmentPayload).toPrettyString())
+    }
+
+
+    /**
+     * Upload file using slackUploadFile required slack notification plugin
+     *
+     * @param config object
+     * @param image String base64 string to send as PNG
+     */
+    def void fileSender(config = [:], String imageBase64) {
+        def utils = new io.polarpoint.utils.Utils()
+        if (!imageBase64)
+        {
+            return
+        }
+
+        def projectName = pipeline.currentBuild.fullProjectName
+        def organisationName =  utils.parseGitHubOrganisation(projectName)
+
+        if (organisationName != "" )
+        {
+            config.channel = organisationName+"-builds"
+        }
+
+        if (!config.filename) {
+            config.filename =  "slack-image.png"
+        }
+
+
+           byte[]  fileByteArray =  Base64.getDecoder().decode(imageBase64);
+           FileOutputStream fos = new FileOutputStream(new File(config.filename));
+           fos.write(fileByteArray);
+           fos.close()
+
+            println("channel :"+config.channel)
+            println("organisationName :"+organisationName)
+            pipeline.slackUploadFile(channel: config.channel, filePath: config.filename, initialComment: projectName)
+
     }
 }
