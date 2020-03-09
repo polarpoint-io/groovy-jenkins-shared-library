@@ -38,7 +38,6 @@ Common shared pipelines, stages and libraries for Jenkins
 
 
 
-
 <!-- GETTING STARTED -->
 ## Getting Started
 
