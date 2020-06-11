@@ -23,7 +23,7 @@ def runTest(String targetBranch, context) {
 
 
                 } finally {
-                    junit allowEmptyResults: true,  '**/build/test-results/integrationTest/*.xml'
+                    junit allowEmptyResults: true, keepLongStdio: true, testResults: '**/build/test-results/integrationTest/*.xml'
                 }
             }
 

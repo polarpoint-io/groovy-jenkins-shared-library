@@ -16,8 +16,8 @@ def scan(String targetBranch, context) {
 
 
                 writeFile file: 'anchore_images', text: imageLine
-                // Avoid failing when Anchore is not up. For temporal use only.
-                anchore name: 'anchore_images', bailOnFail: false, bailOnPluginFail: false, engineRetries: '900'
+
+                anchore name: 'anchore_images', bailOnFail: true, bailOnPluginFail: false, engineRetries: '900'
 
                 //uncommentin temporarily scaning
 

@@ -23,10 +23,9 @@ def runTest(String targetBranch, context) {
                                 --data /mnt/nvd/
                                 --noupdate
                                 --out build/owasp/dependency-check-report.xml
-                                ''', odcInstallation: '5.2.4'
+                                ''', odcInstallation: '5.3.2'
                } catch (err) {
                     error("OWASP failed: " + artifactId + err.message)
-
 
                 } finally {
                 

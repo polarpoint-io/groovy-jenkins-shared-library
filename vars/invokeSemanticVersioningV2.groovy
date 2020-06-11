@@ -19,7 +19,7 @@ import io.polarpoint.workflow.contexts.HelmContext
 import io.polarpoint.workflow.contexts.DotNetContext
 import io.polarpoint.workflow.contexts.ServerlessContext
 import io.polarpoint.workflow.contexts.Javav_0_2_0ConfigurationContext
-@GrabResolver(name = 'pol-thirdparty', root = 'https://artifact.pohzn.com/repository/maven-public')
+
 @Grab(group = 'com.vdurmont', module = 'semver4j', version = '2.2.1')
 @Grab(group = 'org.pegdown', module = 'pegdown', version = '1.4.1')
 import org.pegdown.PegDownProcessor

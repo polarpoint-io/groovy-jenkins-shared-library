@@ -5,7 +5,7 @@ def createlog(String targetBranch, context) {
     try {
         echo "Chglog: about to create Change Log with branch ${targetBranch} ."
         
-        milestone(label: 'Chglog')
+
         podTemplate(label: 'gitchglog') {
             node('gitchglog') {                  
                 container('gitchglog') {

@@ -15,7 +15,7 @@ def apply(String targetBranch, context) {
 
                         withCredentials([string(credentialsId: 'git-rob-token', variable: 'GITROB_ACCESS_TOKEN')]){
 
-                             sh """export GITROB_ACCESS_TOKEN=$GITROB_ACCESS_TOKEN ;  gitrob -enterprise-user=$user -enterprise-url=$url  -save gitrob-session.json dev-ops-common bh hih """
+                             sh """export FONTCONFIG_PATH=/etc/fonts; export GITROB_ACCESS_TOKEN=$GITROB_ACCESS_TOKEN ;  gitrob -enterprise-user=$user -enterprise-url=$url  -save gitrob-session.json hih dev-ops-common """
 
                         }
                 stash name: 'apply',

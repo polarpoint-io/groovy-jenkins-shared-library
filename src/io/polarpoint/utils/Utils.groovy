@@ -4,8 +4,8 @@ import com.vdurmont.semver4j.Semver
 import com.vdurmont.semver4j.SemverException
 import io.polarpoint.workflow.ConfigurationContext
 
-@GrabResolver(name = 'pol-thirdparty', root = 'https://artifact.pohzn.com/repository/maven-public')
-@Grab(group = 'com.vdurmont', module = 'semver4j', version = '2.2.1')
+
+@Grab(group = 'com.vdurmont', module = 'semver4j', version = '3.1.0')
 @Grab(group = 'org.pegdown', module = 'pegdown', version = '1.4.1')
 
 
