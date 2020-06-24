@@ -25,9 +25,9 @@ def runTest(String targetBranch, context) {
         disable_test_task_option = "-x test"
     }
 
-    podTemplate(label: 'gradle-6-0-1') {
-        node('gradle-6-0-1') {
-            container('gradle-6-0-1') {
+    podTemplate(label: 'gradle-6') {
+        node('gradle-6') {
+            container('gradle-6') {
                 try {
 
                     checkout scm
