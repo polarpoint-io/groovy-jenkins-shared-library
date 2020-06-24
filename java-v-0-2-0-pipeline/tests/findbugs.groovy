@@ -10,9 +10,9 @@ def runTest(String targetBranch, context) {
     def artifactId = context.config.archivesBaseName
     def coverage_exclusions = context.config.sonar.coverage_exclusions
 
-    podTemplate(label: 'gradle-6-0-1') {
-        node('gradle-6-0-1') {
-            container('gradle-6-0-1') {
+    podTemplate(label: 'gradle-6') {
+        node('gradle-6') {
+            container('gradle-6') {
 
                 checkout scm
 
