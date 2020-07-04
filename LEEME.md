@@ -17,6 +17,7 @@ NO MODIFIQUE ESTE ARCHIVO. FUE GENERADO AUTOMÁTICAMENTE POR multilang.js
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 
+
 <!--multilang buttons-->
 
 idioma: ![castellano](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-es.png)
@@ -30,8 +31,6 @@ también disponible en:
     <br />
   </p>
 
-
-
 <!-- TABLA DE CONTENIDO -->
 ## Tabla de contenido
 
@@ -43,15 +42,10 @@ también disponible en:
 * [Uso](#usage)
 * [Contacto](#contact)
 
-
-
 <!-- ABOUT THE PROJECT -->
-## Sobre el proyecto 
-
-
+    Tuberías, etapas y bibliotecas comúnmente compartidas para Jenkins 
 
 ### Construido con 
-
 
 
 <!-- GETTING STARTED -->
@@ -59,21 +53,17 @@ también disponible en:
 
 sigue estos pasos
 
-
 ### Instalación 
 
 1. Clonar el repositorio 
 ```
 sh git clone https://github.com/polarpoint-io/groovy-jenkins-shared-library
 ```
-
-
 <!-- USAGE EXAMPLES -->
 ## Uso
 
-Please refer to the [Documentation](https://example.com)_
-
-## Contacto
-  
+Por favor refiérase a  [Documentation](https://ejemplo.com)
+## Contacto  
+equipo-devops@ejample.com
 
 
