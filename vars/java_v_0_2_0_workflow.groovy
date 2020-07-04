@@ -24,7 +24,7 @@ def call(Javav_0_2_0ConfigurationContext context, String targetBranch, scmVars, 
     def integrationTests = []
     def allTests = []
     def success = false
-    def label = "gradle-6-0-1"
+    def label = "gradle-6"
     def gateStatus
     def dockerFileExists
     def Slack  = new Slack(this)
@@ -101,7 +101,7 @@ def call(Javav_0_2_0ConfigurationContext context, String targetBranch, scmVars, 
         Slack.sender(true, [ buildStatus: 'PROGRESS' ])
 
         withCredentials([
-                usernamePassword(credentialsId: 'svc-nexus-user', usernameVariable: 'ORG_GRADLE_PROJECT_nexusUsername', passwordVariable: 'ORG_GRADLE_PROJECT_nexusPassword')])
+                usernamePassword(credentialsId: 'service-nexus-user', usernameVariable: 'ORG_GRADLE_PROJECT_nexusUsername', passwordVariable: 'ORG_GRADLE_PROJECT_nexusPassword')])
                 {
                     // use Nexus credentials for all stages
 
@@ -155,10 +155,10 @@ def call(Javav_0_2_0ConfigurationContext context, String targetBranch, scmVars, 
                     Slack.sender(true, [buildStatus: 'PASSED-INTEGRATION-TESTS'])
 
             milestone(label: 'Build')
-            podTemplate(label: 'gradle-6-0-1') {
-                node('gradle-6-0-1') {
+            podTemplate(label: 'gradle-6') {
+                node('gradle-6') {
                     cleanWs()
-                    container('gradle-6-0-1') {
+                    container('gradle-6') {
                         checkout scm
 
                         stage("Build") {

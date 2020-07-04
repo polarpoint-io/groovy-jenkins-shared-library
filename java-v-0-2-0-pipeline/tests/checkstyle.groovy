@@ -7,9 +7,9 @@ def runTest(String targetBranch, context) {
     utils = new io.polarpoint.utils.Utils()
 
     def artifactId = context.config.archivesBaseName
-    podTemplate(label: 'gradle-6-0-1') {
-        node('gradle-6-0-1') {
-            container('gradle-6-0-1') {
+    podTemplate(label: 'gradle-6') {
+        node('gradle-6') {
+            container('gradle-6') {
 
                 checkout scm
                 try {
