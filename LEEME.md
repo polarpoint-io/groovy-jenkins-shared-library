@@ -15,20 +15,7 @@ idioma: ![castellano](https://raw.githubusercontent.com/codenautas/multilang/mas
 también disponible en:
 [![inglés](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-en.png)](README.md)
 
-  <p align="center">
-    Commonly shared pipelines, stages and libraries for Jenkins
-    <br />
-  </p>
 
-## Table of Contents
-
-* [About the Project](#about-the-project)
-  * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
-* [Contact](#contact)
 <h3 align="center">groovy-jenkins-shared-library</h3>
 
   <p align="center">

@@ -3,7 +3,9 @@
 
 language: ![English](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-en.png)
 also available in:
-[![Spanish](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-es.png)](LEEME.md) 
+[![Spanish](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-es.png)](LEEME.md)
+
+
 <!--lang:en-->
 <h3 align="center">groovy-jenkins-shared-library</h3>
 
@@ -21,6 +23,7 @@ also available in:
   * [Installation](#installation)
 * [Usage](#usage)
 * [Contact](#contact)
+
 <!--lang:es--]
 <h3 align="center">groovy-jenkins-shared-library</h3>
 
