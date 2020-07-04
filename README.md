@@ -6,7 +6,16 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 
-  <h3 align="center">groovy-jenkins-shared-library</h3>
+<!--multilang v0 en:README.md es:LEEME.md -->
+<!--multilang buttons-->
+
+language: ![English](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-en.png)
+also available in:
+[![Spanish](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-es.png)](LEEME.md)
+
+<!--lang:en-->
+
+<h3 align="center">groovy-jenkins-shared-library</h3>
 
   <p align="center">
     Common shared pipelines, stages and libraries for Jenkins
@@ -48,16 +57,17 @@ To get a local copy up and running follow these simple steps.
 ### Installation
  
 1. Clone the repo
-```sh
-git clone https://github.com/polarpoint-io/groovy-jenkins-shared-library
+```
+sh git clone https://github.com/polarpoint-io/groovy-jenkins-shared-library
 ```
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-
 _For more examples, please refer to the [Documentation](https://example.com)_
 
-
+<!--lang:es--]
+Este es un pequeño ejemplo
+[!--lang:*-->
 
