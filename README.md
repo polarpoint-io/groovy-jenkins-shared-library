@@ -25,7 +25,7 @@ also available in:
 <h3 align="center">groovy-jenkins-shared-library</h3>
 
   <p align="center">
-    Tuberías, etapas y bibliotecas comúnmente compartidas para Jenkins 
+    Pipelines, etapas y bibliotecas comúnmente compartidas para Jenkins 
     <br />
   </p>
 
@@ -38,23 +38,13 @@ also available in:
   * [Instalación](#installation)
 * [Uso](#usage)
 * [Contacto](#contact)
-[!--lang:en-->
-# License
-
-<!--lang:es--]
-# Licencia
-
-[!--lang:*-->
-MIT
-<!--lang:*-->
 
 <!--lang:en-->
-
 ## About The Project
 Commonly shared pipelines, stages and libraries for Jenkins
 <!--lang:es--]
 
-    Tuberías, etapas y bibliotecas comúnmente compartidas para Jenkins 
+    Pipelines, etapas y bibliotecas comúnmente compartidas para Jenkins 
 
 <!--lang:en-->
 ### Built With
@@ -100,7 +90,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 ## Uso
 
-Por favor refiérase a  [Documentation](https://ejemplo.com)
+Por favor más información en [Documentation](https://ejemplo.com)
 <!--lang:en-->
 ## Contact  
 equipo-devops@ejample.com
@@ -110,4 +100,13 @@ equipo-devops@ejample.com
 equipo-devops@ejample.com
 
 
+[!--lang:en-->
+## License
+
+<!--lang:es--]
+## Licencia
+
+
 [!--lang:*-->
+MIT
+<!--lang:*-->

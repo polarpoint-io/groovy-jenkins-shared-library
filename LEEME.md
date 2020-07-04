@@ -32,7 +32,7 @@ también disponible en:
 <h3 align="center">groovy-jenkins-shared-library</h3>
 
   <p align="center">
-    Tuberías, etapas y bibliotecas comúnmente compartidas para Jenkins 
+    Pipelines, etapas y bibliotecas comúnmente compartidas para Jenkins 
     <br />
   </p>
 
@@ -45,12 +45,9 @@ también disponible en:
   * [Instalación](#installation)
 * [Uso](#usage)
 * [Contacto](#contact)
-# Licencia
-
-MIT
 
 
-    Tuberías, etapas y bibliotecas comúnmente compartidas para Jenkins 
+    Pipelines, etapas y bibliotecas comúnmente compartidas para Jenkins 
 
 ### Construido con 
 
@@ -69,8 +66,12 @@ sh git clone https://github.com/polarpoint-io/groovy-jenkins-shared-library
 
 ## Uso
 
-Por favor refiérase a  [Documentation](https://ejemplo.com)
+Por favor más información en [Documentation](https://ejemplo.com)
 ## Contacto  
 equipo-devops@ejample.com
 
 
+## Licencia
+
+
+MIT
