@@ -23,5 +23,57 @@ idioma: ![castellano](https://raw.githubusercontent.com/codenautas/multilang/mas
 también disponible en:
 [![inglés](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-en.png)](README.md)
 
-Este es un pequeño ejemplo
+<h3 align="center">groovy-jenkins-shared-library</h3>
+
+  <p align="center">
+    Tuberías, etapas y bibliotecas comúnmente compartidas para Jenkins 
+    <br />
+  </p>
+
+
+
+<!-- TABLA DE CONTENIDO -->
+## Tabla de contenido
+
+* [Sobre el proyecto](#about-the-project)
+  * [Construido con ](#built-with)
+* [Empezando](#getting-started)
+  * [Prerrequisitos](#prerequisites)
+  * [Instalación](#installation)
+* [Uso](#usage)
+* [Contacto](#contact)
+
+
+
+<!-- ABOUT THE PROJECT -->
+## Sobre el proyecto 
+
+
+
+### Construido con 
+
+
+
+<!-- GETTING STARTED -->
+## Empezando 
+
+sigue estos pasos
+
+
+### Instalación 
+
+1. Clonar el repositorio 
+```
+sh git clone https://github.com/polarpoint-io/groovy-jenkins-shared-library
+```
+
+
+<!-- USAGE EXAMPLES -->
+## Uso
+
+Please refer to the [Documentation](https://example.com)_
+
+## Contacto
+  
+
 
