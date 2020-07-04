@@ -9,21 +9,26 @@ NO MODIFIQUE ESTE ARCHIVO. FUE GENERADO AUTOMÁTICAMENTE POR multilang.js
 
 
 -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-
-
 <!--multilang buttons-->
 
 idioma: ![castellano](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-es.png)
 también disponible en:
 [![inglés](https://raw.githubusercontent.com/codenautas/multilang/master/img/lang-en.png)](README.md)
 
+  <p align="center">
+    Commonly shared pipelines, stages and libraries for Jenkins
+    <br />
+  </p>
+
+## Table of Contents
+
+* [About the Project](#about-the-project)
+  * [Built With](#built-with)
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Usage](#usage)
+* [Contact](#contact)
 <h3 align="center">groovy-jenkins-shared-library</h3>
 
   <p align="center">
@@ -31,7 +36,6 @@ también disponible en:
     <br />
   </p>
 
-<!-- TABLA DE CONTENIDO -->
 ## Tabla de contenido
 
 * [Sobre el proyecto](#about-the-project)
@@ -41,14 +45,17 @@ también disponible en:
   * [Instalación](#installation)
 * [Uso](#usage)
 * [Contacto](#contact)
+# Licencia
 
-<!-- ABOUT THE PROJECT -->
+MIT
+
+
     Tuberías, etapas y bibliotecas comúnmente compartidas para Jenkins 
 
 ### Construido con 
 
 
-<!-- GETTING STARTED -->
+
 ## Empezando 
 
 sigue estos pasos
@@ -59,7 +66,7 @@ sigue estos pasos
 ```
 sh git clone https://github.com/polarpoint-io/groovy-jenkins-shared-library
 ```
-<!-- USAGE EXAMPLES -->
+
 ## Uso
 
 Por favor refiérase a  [Documentation](https://ejemplo.com)
