@@ -32,13 +32,6 @@ class Javav_0_2_0ConfigurationContext implements Serializable {
                         parseText(configuration)
         ))
 
-        echo "***WS***Build: ws: ${ws}"
-        if(ws.contains('@'))
-        {
-           ws = ws.substring(0, ws.lastIndexOf("@"))
-
-        }
-
 
         def workspaceLibs = "${ws}"
 
