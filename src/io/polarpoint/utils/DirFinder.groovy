@@ -8,7 +8,7 @@ import java.util.regex.*
  */
 class DirFinder {
 
-    static def pattern = Pattern.compile("/?(libs)(?:/(.+)(?=/|$))?(?:/?([^\.]+\.[a-z]+))?/gm")
+    static def pattern = Pattern.compile("/?(libs)(?:/(.+)(?=\/|$))?(?:\/?([^\.]+\.[a-z]+))?")
     String dirName
 
 
