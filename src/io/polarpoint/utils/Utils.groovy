@@ -3,6 +3,7 @@ package io.polarpoint.utils
 import com.vdurmont.semver4j.Semver
 import com.vdurmont.semver4j.SemverException
 import io.polarpoint.workflow.ConfigurationContext
+import io.polarpoint.utils.DirFinder
 import groovy.io.FileType
 import java.nio.file.Files
 import java.nio.file.Paths
