@@ -20,12 +20,14 @@ def pc_lib_folder () {
     dir.eachFileRecurse (FileType.DIRECTORIES) { file ->
        folders << file
     }
+    DirFinder dirFinder= new DirFinder()
+    echo '**************CHECKING REGEX' + dirFinder.find(folders)
     echo '**************CALLING PC_LIB FOLDERS  NEW *****************'+folders
     //return folders
     //def FOLDER_NAMES = ["<Library name>", "<UUID>"]
     def folderreturn
 
-    def FOLDER_NAMES = ["pipeline-library", "<UUID>"]
+    def FOLDER_NAMES = ["libs", "<UUID>"]
     def folder = FOLDER_NAMES[0]
                 
     if ( dir.contains(FOLDER_NAMES[0]) ) {
