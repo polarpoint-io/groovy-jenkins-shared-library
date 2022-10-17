@@ -17,7 +17,7 @@ def pc_lib_folder () {
     echo '**************CALLING PC_LIB*****************'
     def folders = []
     def dir = new File("${env.WORKSPACE}@libs")
-    dir.eachDirRecurse (FileType.DIRECTORIES) { file ->
+    dir.eachFileRecurse (FileType.DIRECTORIES) { file ->
        folders << file
     }
     echo '**************CALLING PC_LIB FOLDERS  NEW *****************'+folders
