@@ -32,7 +32,7 @@ class Javav_0_2_0ConfigurationContext implements Serializable {
                         parseText(configuration)
         ))
 
-
+        echo "***WS***Build: ws: ${ws}"
         if(ws.contains('@'))
         {
            ws = ws.substring(0, ws.lastIndexOf("@"))
@@ -40,7 +40,7 @@ class Javav_0_2_0ConfigurationContext implements Serializable {
         }
 
 
-        def workspaceLibs = "${ws}@libs"
+        def workspaceLibs = "${ws}"
 
         def builder = config.builder ?: "${workspaceLibs}/pipeline-library/java-v-0-2-0-pipeline/build/builder.groovy"
         def publisher = config?.publisher ?: "${workspaceLibs}/pipeline-library/java-v-0-2-0-pipeline/publish/publisher.groovy"
