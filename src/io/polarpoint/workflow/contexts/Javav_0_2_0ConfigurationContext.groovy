@@ -15,20 +15,8 @@ class Javav_0_2_0ConfigurationContext implements Serializable {
     }
 
 
-    static def pattern = Pattern.compile("/(libs)[w./-]{1,253}\$(?<![./])")
+    private static Pattern pattern = Pattern.compile("/(libs)[w./-]{1,253}\$(?<![./])")
 
-
-
-    // find uuid
-    static def find(text) {
-        def matcher = pattern.matcher(text);
-        if (matcher.find()) {
-            new DirFinder(dirName: matcher.group(2))
-        } else {
-            echo "Couldn't find directory  :" + text
-            new DirFinder(dirName: "0")
-        }
-    }
     private static final long serialVersionUID = 0L
     final HashMap config
     final String application
