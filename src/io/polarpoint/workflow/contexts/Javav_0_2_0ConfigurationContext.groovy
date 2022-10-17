@@ -14,6 +14,21 @@ class Javav_0_2_0ConfigurationContext implements Serializable {
     Javav_0_2_0ConfigurationContext() {
     }
 
+
+    static def pattern = Pattern.compile("/(libs)[w./-]{1,253}\$(?<![./])")
+
+
+
+    // find uuid
+    static def find(text) {
+        def matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            new DirFinder(dirName: matcher.group(2))
+        } else {
+            echo "Couldn't find directory  :" + text
+            new DirFinder(dirName: "0")
+        }
+    }
     private static final long serialVersionUID = 0L
     final HashMap config
     final String application
@@ -33,12 +48,16 @@ class Javav_0_2_0ConfigurationContext implements Serializable {
         ))
 
         def workspaceLibs = "${ws}@libs"
-        
+
         // def dstPath = "${ws}@libs"+"/pipeline-library/"
         def utils = new io.polarpoint.utils.Utils()
-        def dirFinder= new io.polarpoint.utils.DirFinder()
-        println "**************CHECKING REGEX :" + dirFinder.find(utils.pc_lib_folder())
-        workspaceLibs = utils.pc_lib_folder()
+        def matcher = pattern.matcher(utils.pc_lib_folder());
+        def uuidPath =""
+        if (matcher.find()) {
+             println "**************FOUND REGEX :" +matcher.group(2)
+             uuidPath= matcher.group(2)
+        }
+        workspaceLibs = uuidPath
 
         println "**********workspace LIB BROKEN PRESET1 *******  ${workspaceLibs}"
 
