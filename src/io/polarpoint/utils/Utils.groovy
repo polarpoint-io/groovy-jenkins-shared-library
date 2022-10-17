@@ -25,21 +25,21 @@ def pc_lib_folder () {
     echo '**************CALLING PC_LIB FOLDERS  NEW *****************'+folders
     //return folders
     //def FOLDER_NAMES = ["<Library name>", "<UUID>"]
-    def folderreturn
+    // def folderreturn
 
-    def FOLDER_NAMES = ["libs", "<UUID>"]
-    def folder = FOLDER_NAMES[0]
+    // def FOLDER_NAMES = ["libs", "<UUID>"]
+    // def folder = FOLDER_NAMES[0]
                 
-    if ( dir.contains(FOLDER_NAMES[0]) ) {
-        folder = FOLDER_NAMES[0]
-    }
-    else if ( dir.contains(FOLDER_NAMES[1]) ) {
-        folder = FOLDER_NAMES[1]
-    }
-    else {
-        folder = "No directories found"
-    }
-    echo "${folder}"
+    // if ( dir.contains(FOLDER_NAMES[0]) ) {
+    //     folder = FOLDER_NAMES[0]
+    // }
+    // else if ( dir.contains(FOLDER_NAMES[1]) ) {
+    //     folder = FOLDER_NAMES[1]
+    // }
+    // else {
+    //     folder = "No directories found"
+    // }
+    return folders
 
 
 }
