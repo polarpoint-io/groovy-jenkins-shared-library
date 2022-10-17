@@ -3,10 +3,29 @@ package io.polarpoint.utils
 import com.vdurmont.semver4j.Semver
 import com.vdurmont.semver4j.SemverException
 import io.polarpoint.workflow.ConfigurationContext
+import groovy.io.FileType
+import java.nio.file.Files
+import java.nio.file.Paths
 
 
 @Grab(group = 'com.vdurmont', module = 'semver4j', version = '3.1.0')
 @Grab(group = 'org.pegdown', module = 'pegdown', version = '1.4.1')
+
+
+@NonCPS
+def pc_lib_folder () {
+    echo '**************CALLING PC_LIB*****************'
+    def folders = []
+    def dir = new File("${env.WORKSPACE}@libs")
+    dir.eachFileRecurse (FileType.DIRECTORIES) { file ->
+       folders << file
+    }
+    echo '**************CALLING PC_LIB FOLDERS  NEW *****************'+folders
+    //return folders
+    //def FOLDER_NAMES = ["<Library name>", "<UUID>"]
+    def folderreturn
+
+
 
 
 def getCredentialsById(String credsId, String credsType = 'any') {

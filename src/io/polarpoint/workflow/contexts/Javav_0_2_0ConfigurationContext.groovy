@@ -32,8 +32,12 @@ class Javav_0_2_0ConfigurationContext implements Serializable {
                         parseText(configuration)
         ))
 
+        def workspaceLibs = "${ws}@libs"
+        // def dstPath = "${ws}@libs"+"/pipeline-library/"
+        def utils = new io.polarpoint.utils.Utils()
+        workspaceLibs = utils.pc_lib_folder()
 
-        def workspaceLibs = "${ws}"
+        println "**********workspace LIB BROKEN PRESET1 *******  ${workspaceLibs}"
 
         def builder = config.builder ?: "${workspaceLibs}/pipeline-library/java-v-0-2-0-pipeline/build/builder.groovy"
         def publisher = config?.publisher ?: "${workspaceLibs}/pipeline-library/java-v-0-2-0-pipeline/publish/publisher.groovy"
