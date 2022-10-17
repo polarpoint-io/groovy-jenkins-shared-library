@@ -17,13 +17,29 @@ def pc_lib_folder () {
     echo '**************CALLING PC_LIB*****************'
     def folders = []
     def dir = new File("${env.WORKSPACE}@libs")
-    dir.eachFileRecurse (FileType.DIRECTORIES) { file ->
+    dir.eachDirRecurse (FileType.DIRECTORIES) { file ->
        folders << file
     }
     echo '**************CALLING PC_LIB FOLDERS  NEW *****************'+folders
     //return folders
     //def FOLDER_NAMES = ["<Library name>", "<UUID>"]
     def folderreturn
+
+    def FOLDER_NAMES = ["pipeline-library", "<UUID>"]
+    def folder = FOLDER_NAMES[0]
+                
+    if ( dir.contains(FOLDER_NAMES[0]) ) {
+        folder = FOLDER_NAMES[0]
+    }
+    else if ( dir.contains(FOLDER_NAMES[1]) ) {
+        folder = FOLDER_NAMES[1]
+    }
+    else {
+        folder = "No directories found"
+    }
+    echo "${folder}"
+
+
 }
 
 
