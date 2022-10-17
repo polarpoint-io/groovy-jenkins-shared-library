@@ -8,7 +8,7 @@ import java.util.regex.*
  */
 class DirFinder {
 
-    static def pattern = Pattern.compile("/(libs)[\w.\/-]{1,253}$(?<![.\/])")
+    static def pattern = Pattern.compile("/(libs)[w.\/-]{1,253}$(?<![.\/])")
     String dirName
 
 
